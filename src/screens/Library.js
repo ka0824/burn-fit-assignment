@@ -1,7 +1,12 @@
 import { Text } from "react-native";
+import ScreenTemplate from "../component/ScreenTemplate";
 
 const Library = () => {
-  return <Text>Library</Text>;
+  return (
+    <ScreenTemplate>
+      <Text>Library</Text>
+    </ScreenTemplate>
+  );
 };
 
 export default Library;

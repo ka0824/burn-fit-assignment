@@ -1,7 +1,12 @@
 import { Text } from "react-native";
+import ScreenTemplate from "../component/ScreenTemplate";
 
 const MyPage = () => {
-  return <Text>My Page</Text>;
+  return (
+    <ScreenTemplate>
+      <Text>MyPage</Text>
+    </ScreenTemplate>
+  );
 };
 
 export default MyPage;

@@ -1,9 +1,13 @@
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const NavBtn = ({ icon, title }) => {
+const NavBtn = ({ icon, title, navigation }) => {
   return (
-    <TouchableOpacity style={styles.container} activeOpacity={1}>
+    <TouchableOpacity
+      style={styles.container}
+      activeOpacity={1}
+      onPress={() => navigation.navigate("title")}
+    >
       <MaterialCommunityIcons
         name={icon}
         size={40}

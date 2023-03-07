@@ -1,5 +1,4 @@
-import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
-import { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   GestureDetector,
@@ -9,37 +8,19 @@ import {
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   runOnJS,
 } from "react-native-reanimated";
-import ScreenTemplate from "../component/ScreenTemplate";
+import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 
-const Calendar = () => {
-  const [date, setDate] = useState(new Date(new Date().setDate(1)));
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const isPressed = useSharedValue(false);
-
-  const goPrev = useCallback(() => {
-    setDate((prevState) => {
-      return new Date(date.setMonth(date.getMonth() - 1));
-    });
-  }, []);
-
-  const goNext = useCallback(() => {
-    setDate((prevState) => {
-      return new Date(date.setMonth(date.getMonth() + 1));
-    });
-  }, []);
-
-  const clickDate = useCallback((clicked) => {
-    setSelectedDate((prevState) => {
-      return new Date(
-        `${date.getFullYear()}-${date.getMonth() + 1}-${clicked}`
-      );
-    });
-  });
-
-  const offset = useSharedValue({ x: 0, y: 0 });
+const MonthCal = ({
+  date,
+  selectedDate,
+  isPressed,
+  offset,
+  goNext,
+  goPrev,
+  clickDate,
+}) => {
   const gesture = Gesture.Pan()
     .onBegin((e) => {
       "worklet";
@@ -171,52 +152,50 @@ const Calendar = () => {
   }, [date, selectedDate]);
 
   return (
-    <ScreenTemplate>
-      <View>
-        <View style={{ ...styles.space, height: 60 }}>
-          <TouchableOpacity onPress={goPrev}>
-            <MaterialCommunityIcons
-              name={"chevron-left"}
-              size={styles.icon.size}
-              color={styles.icon.color}
-            ></MaterialCommunityIcons>
-          </TouchableOpacity>
-          <Text style={{ fontSize: 16 }}>
-            {date.toLocaleString("default", { month: "long" })}{" "}
-            {date.getFullYear()}
-          </Text>
-          <TouchableOpacity onPress={goNext}>
-            <MaterialCommunityIcons
-              name={"chevron-right"}
-              size={styles.icon.size}
-              color={styles.icon.color}
-            ></MaterialCommunityIcons>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <View style={styles.space}>
-            <Text style={{ ...styles.weekDay, color: "red" }}>Sun</Text>
-            <Text style={styles.weekDay}>Mon</Text>
-            <Text style={styles.weekDay}>Tue</Text>
-            <Text style={styles.weekDay}>Wed</Text>
-            <Text style={styles.weekDay}>Thu</Text>
-            <Text style={styles.weekDay}>Fri</Text>
-            <Text style={{ ...styles.weekDay, color: "#50bcdf" }}>Sat</Text>
-          </View>
-          <GestureHandlerRootView>
-            <GestureDetector gesture={gesture}>
-              <Animated.View style={animatedStyles}>
-                <View>{renderDate()}</View>
-              </Animated.View>
-            </GestureDetector>
-          </GestureHandlerRootView>
-        </View>
+    <View>
+      <View style={{ ...styles.space, height: 60 }}>
+        <TouchableOpacity onPress={goPrev}>
+          <MaterialCommunityIcons
+            name={"chevron-left"}
+            size={styles.icon.size}
+            color={styles.icon.color}
+          ></MaterialCommunityIcons>
+        </TouchableOpacity>
+        <Text style={{ fontSize: 16 }}>
+          {date.toLocaleString("default", { month: "long" })}{" "}
+          {date.getFullYear()}
+        </Text>
+        <TouchableOpacity onPress={goNext}>
+          <MaterialCommunityIcons
+            name={"chevron-right"}
+            size={styles.icon.size}
+            color={styles.icon.color}
+          ></MaterialCommunityIcons>
+        </TouchableOpacity>
       </View>
-    </ScreenTemplate>
+      <View>
+        <View style={styles.space}>
+          <Text style={{ ...styles.weekDay, color: "red" }}>Sun</Text>
+          <Text style={styles.weekDay}>Mon</Text>
+          <Text style={styles.weekDay}>Tue</Text>
+          <Text style={styles.weekDay}>Wed</Text>
+          <Text style={styles.weekDay}>Thu</Text>
+          <Text style={styles.weekDay}>Fri</Text>
+          <Text style={{ ...styles.weekDay, color: "#50bcdf" }}>Sat</Text>
+        </View>
+        <GestureHandlerRootView>
+          <GestureDetector gesture={gesture}>
+            <Animated.View style={animatedStyles}>
+              <View>{renderDate()}</View>
+            </Animated.View>
+          </GestureDetector>
+        </GestureHandlerRootView>
+      </View>
+    </View>
   );
 };
 
-export default Calendar;
+export default MonthCal;
 
 const styles = StyleSheet.create({
   space: {

@@ -1,7 +1,8 @@
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Home from "../screens/Home";
-import Calendar from "../screens/Calendar";
+import Calendar from "../screens/Calendar/Calendar";
 import Library from "../screens/Library";
 import MyPage from "../screens/MyPage";
 

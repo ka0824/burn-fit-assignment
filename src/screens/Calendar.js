@@ -1,11 +1,23 @@
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import { useState, useCallback } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  GestureDetector,
+  Gesture,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+} from "react-native-reanimated";
 import ScreenTemplate from "../component/ScreenTemplate";
 
 const Calendar = () => {
   const [date, setDate] = useState(new Date(new Date().setDate(1)));
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const isPressed = useSharedValue(false);
 
   const goPrev = useCallback(() => {
     setDate((prevState) => {
@@ -25,6 +37,41 @@ const Calendar = () => {
         `${date.getFullYear()}-${date.getMonth() + 1}-${clicked}`
       );
     });
+  });
+
+  const offset = useSharedValue({ x: 0, y: 0 });
+  const gesture = Gesture.Pan()
+    .onBegin((e) => {
+      "worklet";
+      isPressed.value = true;
+    })
+    .onChange((e) => {
+      "worklet";
+      offset.value = {
+        x: e.changeX + offset.value.x,
+      };
+    })
+    .onFinalize(() => {
+      "worklet";
+      isPressed.value = false;
+
+      if (offset.value.x > 50) {
+        runOnJS(goPrev)();
+      } else if (offset.value.x < -50) {
+        runOnJS(goNext)();
+      }
+
+      offset.value = {
+        x: 0,
+      };
+
+      // runOnJS(goPrev)();
+    });
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: offset.value.x }],
+    };
   });
 
   const renderDate = useCallback(() => {
@@ -156,7 +203,13 @@ const Calendar = () => {
             <Text style={styles.weekDay}>Fri</Text>
             <Text style={{ ...styles.weekDay, color: "#50bcdf" }}>Sat</Text>
           </View>
-          <View>{renderDate()}</View>
+          <GestureHandlerRootView>
+            <GestureDetector gesture={gesture}>
+              <Animated.View style={animatedStyles}>
+                <View>{renderDate()}</View>
+              </Animated.View>
+            </GestureDetector>
+          </GestureHandlerRootView>
         </View>
       </View>
     </ScreenTemplate>

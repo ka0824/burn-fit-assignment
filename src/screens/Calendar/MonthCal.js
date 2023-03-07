@@ -9,8 +9,17 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   runOnJS,
+  FadeOut,
+  FadeIn,
+  withSpring,
 } from "react-native-reanimated";
-import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 
 const MonthCal = ({
   date,
@@ -20,7 +29,13 @@ const MonthCal = ({
   goNext,
   goPrev,
   clickDate,
+  changeCalType,
 }) => {
+  const height = useSharedValue(180);
+  const left = useSharedValue(0);
+  const right = useSharedValue(0);
+  const windowWidth = useSharedValue(Dimensions.get("window").width);
+
   const gesture = Gesture.Pan()
     .onBegin((e) => {
       "worklet";
@@ -30,7 +45,11 @@ const MonthCal = ({
       "worklet";
       offset.value = {
         x: e.changeX + offset.value.x,
+        y: e.changeY + offset.value.y,
       };
+      if (height.value + e.changeY < 180) {
+        height.value += e.changeY;
+      }
     })
     .onFinalize(() => {
       "worklet";
@@ -38,20 +57,33 @@ const MonthCal = ({
 
       if (offset.value.x > 50) {
         runOnJS(goPrev)();
+        left.value = -100;
+        left.value = withSpring(0);
       } else if (offset.value.x < -50) {
         runOnJS(goNext)();
+        left.value = windowWidth.value - 100;
+        left.value = withSpring(0);
       }
 
       offset.value = {
         x: 0,
       };
 
-      // runOnJS(goPrev)();
+      if (height.value < 90) {
+        runOnJS(changeCalType)();
+      } else {
+        height.value = 180;
+      }
     });
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: offset.value.x }],
+      overflow: "hidden",
+      height: height.value,
+      left: left.value,
+      right: right.value,
+      position: "relative",
     };
   });
 
@@ -101,7 +133,11 @@ const MonthCal = ({
       for (let j = 0; j < splitArr[i].length; j++) {
         if (i === 0 && j < firstDay) {
           temp.push(
-            <TouchableOpacity style={{ ...styles.date }} disabled={true}>
+            <TouchableOpacity
+              style={{ ...styles.date }}
+              disabled={true}
+              key={`date${i}${j}`}
+            >
               <Text style={{ ...styles.disable, ...styles.dateText }}>
                 {splitArr[i][j]}
               </Text>
@@ -109,7 +145,11 @@ const MonthCal = ({
           );
         } else if (i === splitArr.length - 1 && j > lastDay) {
           temp.push(
-            <TouchableOpacity style={{ ...styles.date }} disabled={true}>
+            <TouchableOpacity
+              style={{ ...styles.date }}
+              disabled={true}
+              key={`date${i}${j}`}
+            >
               <Text style={{ ...styles.disable, ...styles.dateText }}>
                 {splitArr[i][j]}
               </Text>
@@ -125,6 +165,7 @@ const MonthCal = ({
               <TouchableOpacity
                 style={styles.date}
                 onPress={() => clickDate(splitArr[i][j])}
+                key={`date${i}${j}`}
               >
                 <Text style={{ ...styles.dateText, ...styles.selected }}>
                   {splitArr[i][j]}
@@ -136,6 +177,7 @@ const MonthCal = ({
               <TouchableOpacity
                 style={styles.date}
                 onPress={() => clickDate(splitArr[i][j])}
+                key={`date${i}${j}`}
               >
                 <Text style={styles.dateText}>{splitArr[i][j]}</Text>
               </TouchableOpacity>
@@ -185,7 +227,11 @@ const MonthCal = ({
         </View>
         <GestureHandlerRootView>
           <GestureDetector gesture={gesture}>
-            <Animated.View style={animatedStyles}>
+            <Animated.View
+              style={[animatedStyles]}
+              exiting={FadeOut.duration(2000)}
+              entering={FadeIn.duration(2000)}
+            >
               <View>{renderDate()}</View>
             </Animated.View>
           </GestureDetector>

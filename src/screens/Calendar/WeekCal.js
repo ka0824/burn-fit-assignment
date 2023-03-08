@@ -18,6 +18,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
+import { getDates } from "../../utils/calendarFuncs";
 
 const WeekCal = ({
   date,
@@ -178,56 +179,14 @@ const WeekCal = ({
     });
 
   const renderDate = useCallback(() => {
-    const slicedDate = new Date(date);
-
-    const firstDay = slicedDate.getDay();
-    const nextMonthDate = new Date(
-      slicedDate.setMonth(slicedDate.getMonth() + 1)
-    );
-    const lastDate = new Date(nextMonthDate.setDate(0));
-    const lastDay = lastDate.getDay();
-    const currentDateNum = lastDate.getDate();
-    const prevMonthDate = new Date(
-      slicedDate.setMonth(slicedDate.getMonth() - 1)
-    );
-    const prevLastDate = new Date(prevMonthDate.setDate(0));
-    const prevDateNum = prevLastDate.getDate();
-    const dateArr = [];
-    const splitArr = [];
+    const { dateArr, firstDay, lastDay } = getDates(date);
     const result = [];
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    let temp = [];
 
-    for (let i = 0; i < firstDay; i++) {
-      dateArr.unshift(prevDateNum - i);
-    }
-    for (let i = 1; i <= currentDateNum; i++) {
-      dateArr.push(i);
-    }
-    for (let i = 1; i < 7 - lastDay; i++) {
-      dateArr.push(i);
-    }
-
-    for (let i = 0; i <= dateArr.length - 1; i++) {
-      if (i === dateArr.length - 1) {
-        temp.push(dateArr[i]);
-        splitArr.push(temp);
-        break;
-      }
-
-      if (i % 7 === 0 && i !== 0) {
-        splitArr.push(temp);
-        temp = [];
-        temp.push(dateArr[i]);
-      } else {
-        temp.push(dateArr[i]);
-      }
-    }
-
-    for (let i = 0; i < splitArr.length; i++) {
+    for (let i = 0; i < dateArr.length; i++) {
       const temp = [];
 
-      for (let j = 0; j < splitArr[i].length; j++) {
+      for (let j = 0; j < dateArr[i].length; j++) {
         if (i === 0 && j < firstDay) {
           temp.push(
             <TouchableOpacity
@@ -240,11 +199,11 @@ const WeekCal = ({
               key={`date${i}${j}`}
             >
               <Text style={{ ...styles.disable, ...styles.dateText }}>
-                {splitArr[i][j]}
+                {dateArr[i][j]}
               </Text>
             </TouchableOpacity>
           );
-        } else if (i === splitArr.length - 1 && j > lastDay) {
+        } else if (i === dateArr.length - 1 && j > lastDay) {
           temp.push(
             <TouchableOpacity
               style={{ ...styles.date, backgroundColor: "#e9ecef" }}
@@ -252,7 +211,7 @@ const WeekCal = ({
               key={`date${i}${j}`}
             >
               <Text style={{ ...styles.disable, ...styles.dateText }}>
-                {splitArr[i][j]}
+                {dateArr[i][j]}
               </Text>
             </TouchableOpacity>
           );
@@ -260,17 +219,17 @@ const WeekCal = ({
           if (
             date.getFullYear() === selectedDate.getFullYear() &&
             date.getMonth() === selectedDate.getMonth() &&
-            selectedDate.getDate() === splitArr[i][j]
+            selectedDate.getDate() === dateArr[i][j]
           ) {
             temp.push(
               <TouchableOpacity
                 style={{ ...styles.date, backgroundColor: "#e9ecef" }}
-                onPress={() => clickDate(splitArr[i][j])}
+                onPress={() => clickDate(dateArr[i][j])}
                 key={`date${i}${j}`}
               >
                 <Text>{days[j]}</Text>
                 <Text style={{ ...styles.dateText, ...styles.selected }}>
-                  {splitArr[i][j]}
+                  {dateArr[i][j]}
                 </Text>
               </TouchableOpacity>
             );
@@ -278,7 +237,7 @@ const WeekCal = ({
             temp.push(
               <TouchableOpacity
                 style={{ ...styles.date }}
-                onPress={() => clickDate(splitArr[i][j])}
+                onPress={() => clickDate(dateArr[i][j])}
                 key={`date${i}${j}`}
               >
                 <Text>{days[j]}</Text>
@@ -287,7 +246,7 @@ const WeekCal = ({
                     ...styles.dateText,
                   }}
                 >
-                  {splitArr[i][j]}
+                  {dateArr[i][j]}
                 </Text>
               </TouchableOpacity>
             );

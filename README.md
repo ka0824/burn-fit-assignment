@@ -49,7 +49,8 @@ React Native 기반 앱을 제작 하시오. <br />
 
 ### Level3 <br />
 react-native-reanimated, react-native-gesture-handler 라이브러리를 이용해서 제스처 이벤트가 발생하면 <br />
-아래와 같이 캘린더의 형태가 월 캘린더에서 주 캘린더로, 주 캘린더에서 다시 월 캘린더로 변환 가능하도록 구현 하시오. <br />
+아래와 같이 캘린더의 형태가 월 캘린더에서 주 캘린더로, 주 캘린더에서 다시 월 캘린더로 변환 가능하도록 <br/>
+구현 하시오. <br />
 
 <details>
 <summary>구현 화면</summary>

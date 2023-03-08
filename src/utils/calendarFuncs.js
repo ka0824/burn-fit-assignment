@@ -1,3 +1,5 @@
+import { Dimensions } from "react-native";
+
 export const getDates = (date) => {
   const slicedDate = new Date(date);
 
@@ -44,4 +46,23 @@ export const getDates = (date) => {
     }
   }
   return { dateArr: splitArr, firstDay, lastDay };
+};
+
+export const getweekOffset = (date) => {
+  const firstDay = date.getDay();
+  const nextMonthDate = new Date(date.setMonth(date.getMonth() + 1));
+  const lastDate = new Date(nextMonthDate.setDate(0));
+  const lastDay = lastDate.getDay();
+  const weeksCnt = parseInt(lastDate.getDate() / 7);
+
+  return {
+    start: -parseInt(Dimensions.get("window").width / 7) * firstDay,
+    end: -(
+      Dimensions.get("window").width * (weeksCnt - 1) +
+      parseInt(Dimensions.get("window").width / 7) * lastDay
+    ),
+    firstDay,
+    lastDay,
+    weeksCnt,
+  };
 };

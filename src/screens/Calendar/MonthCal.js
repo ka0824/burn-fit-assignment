@@ -24,7 +24,6 @@ import { getDates } from "../../utils/calendarFuncs";
 const MonthCal = ({
   date,
   selectedDate,
-  isPressed,
   offset,
   goNext,
   goPrev,
@@ -33,77 +32,16 @@ const MonthCal = ({
 }) => {
   const height = useSharedValue(180);
   const left = useSharedValue(0);
-  const right = useSharedValue(0);
   const windowWidth = useSharedValue(Dimensions.get("window").width);
   const opacity = useSharedValue(1);
-  const delayChange = useCallback(() => {
-    setTimeout(changeCalType, 300);
-  }, []);
-
-  const gesture = Gesture.Pan()
-    .onBegin((e) => {
-      "worklet";
-      isPressed.value = true;
-    })
-    .onChange((e) => {
-      "worklet";
-      offset.value = {
-        x: e.changeX + offset.value.x,
-        y: e.changeY + offset.value.y,
-      };
-
-      if (height.value + e.changeY < 0) {
-        height.value = 0;
-        return;
-      }
-
-      if (height.value + e.changeY < 180) {
-        height.value += e.changeY;
-      }
-    })
-    .onFinalize(() => {
-      "worklet";
-      isPressed.value = false;
-
-      if (offset.value.x > 50) {
-        runOnJS(goPrev)();
-        left.value = -100;
-        left.value = withSpring(0);
-      } else if (offset.value.x < -50) {
-        runOnJS(goNext)();
-        left.value = windowWidth.value - 100;
-        left.value = withSpring(0);
-      }
-
-      offset.value = {
-        x: 0,
-      };
-
-      if (height.value < 90) {
-        opacity.value = withTiming(0, { duration: 300 });
-        height.value = withTiming(50, { duration: 500 });
-        runOnJS(delayChange)();
-      } else {
-        height.value = withSpring(180);
-      }
-    });
 
   useEffect(() => {
     offset.value = { x: 0, y: 0 };
   }, []);
 
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: offset.value.x }],
-      opacity: opacity.value,
-      overflow: "hidden",
-      height: height.value,
-      left: left.value,
-      right: right.value,
-      backgroundColor: "#e9ecef",
-      position: "relative",
-    };
-  });
+  const delayChange = useCallback(() => {
+    setTimeout(changeCalType, 300);
+  }, []);
 
   const renderDate = useCallback(() => {
     const { dateArr, firstDay, lastDay } = getDates(date);
@@ -174,6 +112,63 @@ const MonthCal = ({
       return <View style={styles.space}>{element}</View>;
     });
   }, [date, selectedDate]);
+
+  const gesture = Gesture.Pan()
+    .onBegin((e) => {
+      "worklet";
+    })
+    .onChange((e) => {
+      "worklet";
+      offset.value = {
+        x: e.changeX + offset.value.x,
+        y: e.changeY + offset.value.y,
+      };
+
+      if (height.value + e.changeY < 0) {
+        height.value = 0;
+        return;
+      }
+
+      if (height.value + e.changeY < 180) {
+        height.value += e.changeY;
+      }
+    })
+    .onFinalize(() => {
+      "worklet";
+
+      if (offset.value.x > 50) {
+        runOnJS(goPrev)();
+        left.value = -100;
+        left.value = withSpring(0);
+      } else if (offset.value.x < -50) {
+        runOnJS(goNext)();
+        left.value = windowWidth.value - 100;
+        left.value = withSpring(0);
+      }
+
+      offset.value = {
+        x: 0,
+      };
+
+      if (height.value < 90) {
+        opacity.value = withTiming(0, { duration: 300 });
+        height.value = withTiming(50, { duration: 500 });
+        runOnJS(delayChange)();
+      } else {
+        height.value = withSpring(180);
+      }
+    });
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: offset.value.x }],
+      opacity: opacity.value,
+      overflow: "hidden",
+      height: height.value,
+      left: left.value,
+      backgroundColor: "#e9ecef",
+    };
+  });
 
   return (
     <View>

@@ -18,16 +18,17 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { getDates } from "../../utils/calendarFuncs";
+import { getDates, getweekOffset } from "../../utils/calendarFuncs";
 
 const WeekCal = ({
   date,
   selectedDate,
-  isPressed,
   offset,
   clickDate,
   changeCalType,
   setDate,
+  goNext,
+  goPrev,
 }) => {
   const height = useSharedValue(50);
   const windowWidth = useSharedValue(Dimensions.get("window").width);
@@ -40,23 +41,15 @@ const WeekCal = ({
     setTimeout(changeCalType, 300);
   }, []);
 
-  const goPrev = useCallback(() => {
+  const goPrevAdvanced = useCallback(() => {
     const slicedDate = new Date(date);
 
     const newDate = new Date(slicedDate.setMonth(slicedDate.getMonth() - 1));
 
-    const firstDay = newDate.getDay();
-    const nextMonthDate = new Date(newDate.setMonth(newDate.getMonth() + 1));
-    const lastDate = new Date(nextMonthDate.setDate(0));
-    const lastDay = lastDate.getDay();
-    const weeksCnt = parseInt(lastDate.getDate() / 7);
+    const { start, end, weeksCnt, lastDay } = getweekOffset(newDate);
 
-    startOffset.value =
-      -parseInt(Dimensions.get("window").width / 7) * firstDay;
-    endOffset.value = -(
-      Dimensions.get("window").width * (weeksCnt - 1) +
-      parseInt(Dimensions.get("window").width / 7) * lastDay
-    );
+    startOffset.value = start;
+    endOffset.value = end;
 
     left.value =
       -Dimensions.get("window").width * weeksCnt +
@@ -68,38 +61,23 @@ const WeekCal = ({
         parseInt(Dimensions.get("window").width / 7) * (6 - lastDay)
     );
 
-    setDate((prevState) => {
-      return new Date(prevState.setMonth(prevState.getMonth() - 1));
-    });
-  }, [date, left, startOffset, endOffset]);
+    goPrev();
+  }, [date, left, startOffset, endOffset, goNext]);
 
-  const goNext = useCallback(() => {
-    console.log("next");
+  const goNextAdvanced = useCallback(() => {
     const slicedDate = new Date(date);
-
     const newDate = new Date(slicedDate.setMonth(slicedDate.getMonth() + 1));
+    const { start, end, firstDay } = getweekOffset(newDate);
 
-    const firstDay = newDate.getDay();
-    const nextMonthDate = new Date(newDate.setMonth(newDate.getMonth() + 1));
-    const lastDate = new Date(nextMonthDate.setDate(0));
-    const lastDay = lastDate.getDay();
-    const weeksCnt = parseInt(lastDate.getDate() / 7);
-
-    startOffset.value =
-      -parseInt(Dimensions.get("window").width / 7) * firstDay;
-    endOffset.value = -(
-      Dimensions.get("window").width * (weeksCnt - 1) +
-      parseInt(Dimensions.get("window").width / 7) * lastDay
-    );
+    startOffset.value = start;
+    endOffset.value = end;
 
     left.value = -parseInt(Dimensions.get("window").width / 7) * firstDay + 100;
     left.value = withSpring(
       -parseInt(Dimensions.get("window").width / 7) * firstDay
     );
 
-    setDate((prevState) => {
-      return new Date(prevState.setMonth(prevState.getMonth() + 1));
-    });
+    goNext();
   }, [date, left, startOffset, endOffset]);
 
   useEffect(() => {
@@ -121,9 +99,6 @@ const WeekCal = ({
       Dimensions.get("window").width * (weeksCnt - 1) +
       parseInt(Dimensions.get("window").width / 7) * lastDay
     );
-
-    console.log(-parseInt(Dimensions.get("window").width / 7));
-    console.log(date);
   }, []);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -139,7 +114,6 @@ const WeekCal = ({
   const gesture = Gesture.Pan()
     .onBegin((e) => {
       "worklet";
-      isPressed.value = true;
     })
     .onChange((e) => {
       "worklet";
@@ -170,12 +144,10 @@ const WeekCal = ({
       }
 
       if (left.value > startOffset.value + 30) {
-        runOnJS(goPrev)();
+        runOnJS(goPrevAdvanced)();
       } else if (left.value < endOffset.value - 30) {
-        runOnJS(goNext)();
+        runOnJS(goNextAdvanced)();
       }
-
-      isPressed.value = false;
     });
 
   const renderDate = useCallback(() => {

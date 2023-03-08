@@ -10,17 +10,16 @@ const Calendar = () => {
   const [date, setDate] = useState(new Date(new Date().setDate(1)));
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [calType, setCalType] = useState("month");
-  const isPressed = useSharedValue(false);
 
   const goPrev = useCallback(() => {
     setDate((prevState) => {
-      return new Date(date.setMonth(date.getMonth() - 1));
+      return new Date(prevState.setMonth(prevState.getMonth() - 1));
     });
   }, []);
 
   const goNext = useCallback(() => {
     setDate((prevState) => {
-      return new Date(date.setMonth(date.getMonth() + 1));
+      return new Date(prevState.setMonth(prevState.getMonth() + 1));
     });
   }, []);
 
@@ -51,7 +50,6 @@ const Calendar = () => {
           <MonthCal
             date={date}
             selectedDate={selectedDate}
-            isPressed={isPressed}
             offset={offset}
             goNext={goNext}
             goPrev={goPrev}
@@ -62,13 +60,12 @@ const Calendar = () => {
           <WeekCal
             date={date}
             selectedDate={selectedDate}
-            isPressed={isPressed}
             offset={offset}
             clickDate={clickDate}
             changeCalType={changeCalType}
-            goNext={goNext}
-            goPrev={goPrev}
             setDate={setDate}
+            goPrev={goPrev}
+            goNext={goNext}
           ></WeekCal>
         )}
       </View>

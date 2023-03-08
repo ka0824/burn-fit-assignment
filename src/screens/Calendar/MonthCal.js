@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   GestureDetector,
@@ -36,6 +36,7 @@ const MonthCal = ({
   const left = useSharedValue(0);
   const right = useSharedValue(0);
   const windowWidth = useSharedValue(Dimensions.get("window").width);
+  const opacity = useSharedValue(1);
   const delayChange = useCallback(() => {
     setTimeout(changeCalType, 300);
   }, []);
@@ -81,7 +82,8 @@ const MonthCal = ({
       };
 
       if (height.value < 90) {
-        height.value = withTiming(0, { duration: 100 });
+        opacity.value = withTiming(0, { duration: 300 });
+        height.value = withTiming(50, { duration: 500 });
         // runOnJS(changeCalType)();
         runOnJS(delayChange)();
       } else {
@@ -89,13 +91,19 @@ const MonthCal = ({
       }
     });
 
+  useEffect(() => {
+    offset.value = { x: 0, y: 0 };
+  }, []);
+
   const animatedStyles = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: offset.value.x }],
+      opacity: opacity.value,
       overflow: "hidden",
       height: height.value,
       left: left.value,
       right: right.value,
+      backgroundColor: "#e9ecef",
       position: "relative",
     };
   });
@@ -228,16 +236,7 @@ const MonthCal = ({
           ></MaterialCommunityIcons>
         </TouchableOpacity>
       </View>
-      <View>
-        <View style={styles.space}>
-          <Text style={{ ...styles.weekDay, color: "red" }}>Sun</Text>
-          <Text style={styles.weekDay}>Mon</Text>
-          <Text style={styles.weekDay}>Tue</Text>
-          <Text style={styles.weekDay}>Wed</Text>
-          <Text style={styles.weekDay}>Thu</Text>
-          <Text style={styles.weekDay}>Fri</Text>
-          <Text style={{ ...styles.weekDay, color: "#50bcdf" }}>Sat</Text>
-        </View>
+      <View style={{ backgroundColor: "#e9ecef" }}>
         <GestureHandlerRootView>
           <GestureDetector gesture={gesture}>
             <Animated.View
@@ -245,6 +244,15 @@ const MonthCal = ({
               exiting={FadeOut.duration(2000)}
               entering={FadeIn.duration(2000)}
             >
+              <View style={styles.space}>
+                <Text style={{ ...styles.weekDay, color: "red" }}>Sun</Text>
+                <Text style={styles.weekDay}>Mon</Text>
+                <Text style={styles.weekDay}>Tue</Text>
+                <Text style={styles.weekDay}>Wed</Text>
+                <Text style={styles.weekDay}>Thu</Text>
+                <Text style={styles.weekDay}>Fri</Text>
+                <Text style={{ ...styles.weekDay, color: "#50bcdf" }}>Sat</Text>
+              </View>
               <View>{renderDate()}</View>
             </Animated.View>
           </GestureDetector>

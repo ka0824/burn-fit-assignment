@@ -33,12 +33,16 @@ const WeekCal = ({
   setDate,
   // goNext,
 }) => {
-  const height = useSharedValue(70);
+  const height = useSharedValue(50);
   const windowWidth = useSharedValue(Dimensions.get("window").width);
   const left = useSharedValue(0);
   const weeks = useSharedValue(parseInt(selectedDate.getDate() / 7));
   const startOffset = useSharedValue(0);
   const endOffset = useSharedValue(0);
+  const opacity = useSharedValue(1);
+  const delayChange = useCallback(() => {
+    setTimeout(changeCalType, 300);
+  }, []);
 
   const goPrev = useCallback(() => {
     const slicedDate = new Date(date);
@@ -138,8 +142,10 @@ const WeekCal = ({
     return {
       // transform: [{ translateX: offset.value.x }],
       //   overflow: "hidden",
-      // backgroundColor: "red",
+
       // height: height.value,
+      opacity: opacity.value,
+      width: "auto",
       left: left.value,
       height: height.value,
       position: "relative",
@@ -163,7 +169,9 @@ const WeekCal = ({
         y: e.changeY + offset.value.y,
       };
 
-      height.value += e.changeY;
+      if (height.value + e.changeY > 50) {
+        height.value += e.changeY;
+      }
 
       //   if (height.value + e.changeY < 0) {
       //     height.value = 0;
@@ -175,11 +183,23 @@ const WeekCal = ({
       //   }
 
       left.value += e.changeX;
-      left.value += e.changeX;
     })
     .onFinalize(() => {
       "worklet";
       runOnJS(test)();
+
+      if (height.value > 50) {
+        if (height.value < 60) {
+          height.value = withSpring(50);
+        } else {
+          opacity.value = withTiming(0, { duration: 300 });
+          height.value = withTiming(180, { duration: 500 });
+          left.value = withTiming(0, { duration: 300 });
+          runOnJS(delayChange)();
+          return;
+        }
+      }
+
       if (left.value > startOffset.value + 30) {
         runOnJS(goPrev)();
         // // left.value = -2000;
@@ -189,6 +209,8 @@ const WeekCal = ({
         // runOnJS(goNext)();
         // left.value = 0;
       }
+      // left.value = 0;
+      // runOnJS(changeCalType)();
 
       isPressed.value = false;
 
@@ -275,7 +297,11 @@ const WeekCal = ({
         if (i === 0 && j < firstDay) {
           temp.push(
             <TouchableOpacity
-              style={{ ...styles.date }}
+              style={{
+                ...styles.date,
+                backgroundColor: "#e9ecef",
+                width: "auto",
+              }}
               disabled={true}
               key={`date${i}${j}`}
             >
@@ -287,7 +313,7 @@ const WeekCal = ({
         } else if (i === splitArr.length - 1 && j > lastDay) {
           temp.push(
             <TouchableOpacity
-              style={{ ...styles.date }}
+              style={{ ...styles.date, backgroundColor: "#e9ecef" }}
               disabled={true}
               key={`date${i}${j}`}
             >
@@ -304,7 +330,7 @@ const WeekCal = ({
           ) {
             temp.push(
               <TouchableOpacity
-                style={styles.date}
+                style={{ ...styles.date, backgroundColor: "#e9ecef" }}
                 onPress={() => clickDate(splitArr[i][j])}
                 key={`date${i}${j}`}
               >
@@ -317,12 +343,18 @@ const WeekCal = ({
           } else {
             temp.push(
               <TouchableOpacity
-                style={styles.date}
+                style={{ ...styles.date }}
                 onPress={() => clickDate(splitArr[i][j])}
                 key={`date${i}${j}`}
               >
                 <Text>{days[j]}</Text>
-                <Text style={styles.dateText}>{splitArr[i][j]}</Text>
+                <Text
+                  style={{
+                    ...styles.dateText,
+                  }}
+                >
+                  {splitArr[i][j]}
+                </Text>
               </TouchableOpacity>
             );
           }
@@ -338,13 +370,13 @@ const WeekCal = ({
 
   return (
     <View>
-      <View style={{ ...styles.space, height: 60 }}>
+      <View style={{ ...styles.space, height: 60, justifyContent: "center" }}>
         <Text style={{ fontSize: 16 }}>
           {date.toLocaleString("default", { month: "long" })}{" "}
           {date.getFullYear()}
         </Text>
       </View>
-      <View>
+      <View style={{ backgroundColor: "#e9ecef" }}>
         <GestureHandlerRootView>
           <GestureDetector gesture={gesture}>
             <Animated.View style={[animatedStyles]}>
@@ -400,5 +432,8 @@ const styles = StyleSheet.create({
     width: "50%",
     textAlign: "center",
     textAlignVertical: "center",
+    // backgroundColor: "#e9ecef",
+    width: "100%",
+    // height: "100%",
   },
 });

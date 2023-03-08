@@ -9,8 +9,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   runOnJS,
-  FadeOut,
-  FadeIn,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
@@ -73,7 +71,6 @@ const MonthCal = ({
       } else if (offset.value.x < -50) {
         runOnJS(goNext)();
         left.value = windowWidth.value - 100;
-        // left.value = withSpring(0);
         left.value = withSpring(0);
       }
 
@@ -84,7 +81,6 @@ const MonthCal = ({
       if (height.value < 90) {
         opacity.value = withTiming(0, { duration: 300 });
         height.value = withTiming(50, { duration: 500 });
-        // runOnJS(changeCalType)();
         runOnJS(delayChange)();
       } else {
         height.value = withSpring(180);
@@ -239,11 +235,7 @@ const MonthCal = ({
       <View style={{ backgroundColor: "#e9ecef" }}>
         <GestureHandlerRootView>
           <GestureDetector gesture={gesture}>
-            <Animated.View
-              style={[animatedStyles]}
-              exiting={FadeOut.duration(2000)}
-              entering={FadeIn.duration(2000)}
-            >
+            <Animated.View style={[animatedStyles]}>
               <View style={styles.space}>
                 <Text style={{ ...styles.weekDay, color: "red" }}>Sun</Text>
                 <Text style={styles.weekDay}>Mon</Text>

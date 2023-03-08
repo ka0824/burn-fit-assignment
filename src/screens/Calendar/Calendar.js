@@ -1,17 +1,7 @@
-import React, { useEffect } from "react";
-import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
+import React from "react";
+import { View } from "react-native";
 import { useState, useCallback } from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import {
-  GestureDetector,
-  Gesture,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  runOnJS,
-} from "react-native-reanimated";
+import { useSharedValue } from "react-native-reanimated";
 import ScreenTemplate from "../../component/ScreenTemplate";
 import MonthCal from "./MonthCal";
 import WeekCal from "./WeekCal";

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   GestureDetector,
   Gesture,
@@ -9,8 +8,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   runOnJS,
-  FadeOut,
-  FadeIn,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
@@ -29,9 +26,7 @@ const WeekCal = ({
   offset,
   clickDate,
   changeCalType,
-  // goPrev,
   setDate,
-  // goNext,
 }) => {
   const height = useSharedValue(50);
   const windowWidth = useSharedValue(Dimensions.get("window").width);
@@ -75,7 +70,6 @@ const WeekCal = ({
     setDate((prevState) => {
       return new Date(prevState.setMonth(prevState.getMonth() - 1));
     });
-    // console.log(-parseInt(Dimensions.get("window").width / 7) * firstDay);
   }, [date, left, startOffset, endOffset]);
 
   const goNext = useCallback(() => {
@@ -104,7 +98,6 @@ const WeekCal = ({
 
     setDate((prevState) => {
       return new Date(prevState.setMonth(prevState.getMonth() + 1));
-      // return newDate;
     });
   }, [date, left, startOffset, endOffset]);
 
@@ -132,18 +125,8 @@ const WeekCal = ({
     console.log(date);
   }, []);
 
-  const test = () => {
-    if (left.value > startOffset.value) {
-      console.log("here");
-    }
-  };
-
   const animatedStyles = useAnimatedStyle(() => {
     return {
-      // transform: [{ translateX: offset.value.x }],
-      //   overflow: "hidden",
-
-      // height: height.value,
       opacity: opacity.value,
       width: "auto",
       left: left.value,
@@ -159,11 +142,6 @@ const WeekCal = ({
     })
     .onChange((e) => {
       "worklet";
-
-      // if (left.value > startOffset.value) {
-      //   // runOnJS(goPrev)();
-      //   return;
-      // }
       offset.value = {
         x: e.changeX + offset.value.x,
         y: e.changeY + offset.value.y,
@@ -173,20 +151,10 @@ const WeekCal = ({
         height.value += e.changeY;
       }
 
-      //   if (height.value + e.changeY < 0) {
-      //     height.value = 0;
-      //     return;
-      //   }
-
-      //   if (height.value + e.changeY < 180) {
-      //     height.value += e.changeY;
-      //   }
-
       left.value += e.changeX;
     })
     .onFinalize(() => {
       "worklet";
-      runOnJS(test)();
 
       if (height.value > 50) {
         if (height.value < 60) {
@@ -202,45 +170,11 @@ const WeekCal = ({
 
       if (left.value > startOffset.value + 30) {
         runOnJS(goPrev)();
-        // // left.value = -2000;
       } else if (left.value < endOffset.value - 30) {
         runOnJS(goNext)();
-
-        // runOnJS(goNext)();
-        // left.value = 0;
       }
-      // left.value = 0;
-      // runOnJS(changeCalType)();
 
       isPressed.value = false;
-
-      // if (offset.value.y > 300) {
-      //   runOnJS(changeCalType)();
-      // }
-      // runOnJS(goNext)();
-
-      //   if (offset.value.x > 50) {
-      //     runOnJS(goPrev)();
-      //     left.value = -100;
-      //     left.value = withSpring(0);
-      //   } else if (offset.value.x < -50) {
-      //     runOnJS(goNext)();
-      //     left.value = windowWidth.value - 100;
-      //     // left.value = withSpring(0);
-      //     left.value = withSpring(0);
-      //   }
-
-      //   offset.value = {
-      //     x: 0,
-      //   };
-
-      //   if (height.value < 90) {
-      //     height.value = withTiming(0, { duration: 100 });
-      //     // runOnJS(changeCalType)();
-      //     runOnJS(delayChange)();
-      //   } else {
-      //     height.value = withSpring(180);
-      //   }
     });
 
   const renderDate = useCallback(() => {
@@ -403,8 +337,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    // paddingLeft: 20,
-    // paddingRight: 20,
   },
   weekDay: {
     textAlign: "center",
@@ -432,8 +364,6 @@ const styles = StyleSheet.create({
     width: "50%",
     textAlign: "center",
     textAlignVertical: "center",
-    // backgroundColor: "#e9ecef",
     width: "100%",
-    // height: "100%",
   },
 });

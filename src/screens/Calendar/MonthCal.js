@@ -30,7 +30,7 @@ const MonthCal = ({
   clickDate,
   changeCalType,
 }) => {
-  const height = useSharedValue(180);
+  const height = useSharedValue(200);
   const left = useSharedValue(0);
   const windowWidth = useSharedValue(Dimensions.get("window").width);
   const opacity = useSharedValue(1);
@@ -108,8 +108,12 @@ const MonthCal = ({
       result.push(temp);
     }
 
-    return result.map((element) => {
-      return <View style={styles.space}>{element}</View>;
+    return result.map((element, idx) => {
+      return (
+        <View style={styles.space} key={`outside-${idx}`}>
+          {element}
+        </View>
+      );
     });
   }, [date, selectedDate]);
 
@@ -129,7 +133,7 @@ const MonthCal = ({
         return;
       }
 
-      if (height.value + e.changeY < 180) {
+      if (height.value + e.changeY < 200) {
         height.value += e.changeY;
       }
     })
@@ -155,7 +159,7 @@ const MonthCal = ({
         height.value = withTiming(50, { duration: 500 });
         runOnJS(delayChange)();
       } else {
-        height.value = withSpring(180);
+        height.value = withSpring(200);
       }
     });
 

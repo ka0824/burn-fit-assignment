@@ -49,18 +49,21 @@ export const getDates = (date) => {
 };
 
 export const getweekOffset = (date) => {
-  const firstDay = date.getDay();
-  const nextMonthDate = new Date(date.setMonth(date.getMonth() + 1));
+  const slicedDate = new Date(date);
+  const { dateArr } = getDates(slicedDate);
+  const firstDay = slicedDate.getDay();
+  const nextMonthDate = new Date(
+    slicedDate.setMonth(slicedDate.getMonth() + 1)
+  );
   const lastDate = new Date(nextMonthDate.setDate(0));
   const lastDay = lastDate.getDay();
-  const weeksCnt = parseInt(lastDate.getDate() / 7);
+  const weeksCnt = dateArr.length;
 
   return {
     start: -parseInt(Dimensions.get("window").width / 7) * firstDay,
-    end: -(
-      Dimensions.get("window").width * (weeksCnt - 1) +
-      parseInt(Dimensions.get("window").width / 7) * lastDay
-    ),
+    end:
+      -Dimensions.get("window").width * (dateArr.length - 1) +
+      parseInt(Dimensions.get("window").width / 7) * (6 - lastDay),
     firstDay,
     lastDay,
     weeksCnt,

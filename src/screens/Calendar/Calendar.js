@@ -63,7 +63,6 @@ const Calendar = () => {
             offset={offset}
             clickDate={clickDate}
             changeCalType={changeCalType}
-            setDate={setDate}
             goPrev={goPrev}
             goNext={goNext}
           ></WeekCal>

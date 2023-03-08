@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import {
   GestureDetector,
   Gesture,
@@ -26,14 +26,12 @@ const WeekCal = ({
   offset,
   clickDate,
   changeCalType,
-  setDate,
   goNext,
   goPrev,
 }) => {
   const height = useSharedValue(50);
   const windowWidth = useSharedValue(Dimensions.get("window").width);
   const left = useSharedValue(0);
-  const weeks = useSharedValue(parseInt(selectedDate.getDate() / 7));
   const startOffset = useSharedValue(0);
   const endOffset = useSharedValue(0);
   const opacity = useSharedValue(1);
@@ -46,59 +44,67 @@ const WeekCal = ({
 
     const newDate = new Date(slicedDate.setMonth(slicedDate.getMonth() - 1));
 
-    const { start, end, weeksCnt, lastDay } = getweekOffset(newDate);
+    const { start, end } = getweekOffset(newDate);
 
     startOffset.value = start;
     endOffset.value = end;
 
-    left.value =
-      -Dimensions.get("window").width * weeksCnt +
-      parseInt(Dimensions.get("window").width / 7) * (6 - lastDay) -
-      100;
-
-    left.value = withSpring(
-      -Dimensions.get("window").width * weeksCnt +
-        parseInt(Dimensions.get("window").width / 7) * (6 - lastDay)
-    );
+    left.value = end - 100;
+    left.value = withSpring(end);
 
     goPrev();
-  }, [date, left, startOffset, endOffset, goNext]);
+  }, [date, left, startOffset, endOffset, goPrev]);
 
   const goNextAdvanced = useCallback(() => {
     const slicedDate = new Date(date);
     const newDate = new Date(slicedDate.setMonth(slicedDate.getMonth() + 1));
-    const { start, end, firstDay } = getweekOffset(newDate);
+    const { start, end } = getweekOffset(newDate);
 
     startOffset.value = start;
     endOffset.value = end;
 
-    left.value = -parseInt(Dimensions.get("window").width / 7) * firstDay + 100;
-    left.value = withSpring(
-      -parseInt(Dimensions.get("window").width / 7) * firstDay
-    );
+    left.value = start + 100;
+    left.value = withSpring(start);
 
     goNext();
-  }, [date, left, startOffset, endOffset]);
+  }, [date, left, startOffset, endOffset, goNext]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const slicedDate = new Date(date);
+    const { dateArr, firstDay, lastDay } = getDates(slicedDate);
+    const { start, end } = getweekOffset(slicedDate);
+    const targetDate = selectedDate.getDate();
+    let targetWeek;
 
-    const firstDay = slicedDate.getDay();
-    const nextMonthDate = new Date(
-      slicedDate.setMonth(slicedDate.getMonth() + 1)
-    );
-    const lastDate = new Date(nextMonthDate.setDate(0));
-    const lastDay = lastDate.getDay();
-    const weeksCnt = parseInt(lastDate.getDate() / 7);
+    for (let i = 0; i < dateArr.length; i++) {
+      if (targetDate <= 6) {
+        if (dateArr[i].includes(targetDate)) {
+          targetWeek = i;
+          break;
+        }
+      } else {
+        if (dateArr[i].includes(targetDate)) {
+          targetWeek = i;
+        }
+      }
+    }
 
-    left.value = -windowWidth.value * weeks.value;
+    if (targetWeek === 0) {
+      left.value =
+        -windowWidth.value * targetWeek -
+        parseInt(windowWidth.value / 7) * firstDay;
+      return;
+    }
 
-    startOffset.value =
-      -parseInt(Dimensions.get("window").width / 7) * firstDay;
-    endOffset.value = -(
-      Dimensions.get("window").width * (weeksCnt - 1) +
-      parseInt(Dimensions.get("window").width / 7) * lastDay
-    );
+    if (targetWeek === dateArr.length - 1) {
+      left.value =
+        -windowWidth.value * targetWeek +
+        parseInt(windowWidth.value / 7) * (6 - lastDay);
+      return;
+    }
+    startOffset.value = start;
+    endOffset.value = end;
+    left.value = -windowWidth.value * targetWeek;
   }, []);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -132,20 +138,20 @@ const WeekCal = ({
       "worklet";
 
       if (height.value > 50) {
-        if (height.value < 60) {
+        if (height.value < 80) {
           height.value = withSpring(50);
         } else {
           opacity.value = withTiming(0, { duration: 300 });
-          height.value = withTiming(180, { duration: 500 });
+          height.value = withTiming(200, { duration: 500 });
           left.value = withTiming(0, { duration: 300 });
           runOnJS(delayChange)();
           return;
         }
       }
 
-      if (left.value > startOffset.value + 30) {
+      if (left.value > startOffset.value) {
         runOnJS(goPrevAdvanced)();
-      } else if (left.value < endOffset.value - 30) {
+      } else if (left.value < endOffset.value) {
         runOnJS(goNextAdvanced)();
       }
     });
@@ -237,8 +243,12 @@ const WeekCal = ({
       result.push(temp);
     }
 
-    return result.map((element) => {
-      return <View style={styles.space}>{element}</View>;
+    return result.map((element, idx) => {
+      return (
+        <View style={styles.space} key={`outside-${idx}`}>
+          {element}
+        </View>
+      );
     });
   }, [date, selectedDate]);
 

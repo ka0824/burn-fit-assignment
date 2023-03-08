@@ -153,7 +153,16 @@ const WeekCal = ({
   const renderDate = useCallback(() => {
     const { dateArr, firstDay, lastDay } = getDates(date);
     const result = [];
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const daysColor = [
+      "red",
+      "black",
+      "black",
+      "black",
+      "black",
+      "black",
+      "#50bcdf",
+    ];
 
     for (let i = 0; i < dateArr.length; i++) {
       const temp = [];
@@ -199,7 +208,7 @@ const WeekCal = ({
                 onPress={() => clickDate(dateArr[i][j])}
                 key={`date${i}${j}`}
               >
-                <Text>{days[j]}</Text>
+                <Text style={{ color: daysColor[j] }}>{days[j]}</Text>
                 <Text style={{ ...styles.dateText, ...styles.selected }}>
                   {dateArr[i][j]}
                 </Text>
@@ -212,7 +221,7 @@ const WeekCal = ({
                 onPress={() => clickDate(dateArr[i][j])}
                 key={`date${i}${j}`}
               >
-                <Text>{days[j]}</Text>
+                <Text style={{ color: daysColor[j] }}>{days[j]}</Text>
                 <Text
                   style={{
                     ...styles.dateText,

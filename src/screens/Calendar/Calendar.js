@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import { useState, useCallback } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -69,7 +69,17 @@ const Calendar = () => {
             changeCalType={changeCalType}
           ></MonthCal>
         ) : (
-          <WeekCal></WeekCal>
+          <WeekCal
+            date={date}
+            selectedDate={selectedDate}
+            isPressed={isPressed}
+            offset={offset}
+            clickDate={clickDate}
+            changeCalType={changeCalType}
+            goNext={goNext}
+            goPrev={goPrev}
+            setDate={setDate}
+          ></WeekCal>
         )}
       </View>
     </ScreenTemplate>
@@ -77,41 +87,3 @@ const Calendar = () => {
 };
 
 export default Calendar;
-
-const styles = StyleSheet.create({
-  space: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  weekDay: {
-    textAlign: "center",
-    flex: 1,
-  },
-  icon: {
-    color: "#50bcdf",
-    size: 30,
-  },
-  date: {
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-  },
-  disable: {
-    color: "#808080",
-  },
-  selected: {
-    borderWidth: 1,
-    borderColor: "#50bcdf",
-    borderRadius: 50,
-  },
-  dateText: {
-    height: 30,
-    width: "50%",
-    textAlign: "center",
-    textAlignVertical: "center",
-  },
-});

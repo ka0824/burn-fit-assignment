@@ -12,6 +12,7 @@ import Animated, {
   FadeOut,
   FadeIn,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import {
   Text,
@@ -35,6 +36,9 @@ const MonthCal = ({
   const left = useSharedValue(0);
   const right = useSharedValue(0);
   const windowWidth = useSharedValue(Dimensions.get("window").width);
+  const delayChange = useCallback(() => {
+    setTimeout(changeCalType, 300);
+  }, []);
 
   const gesture = Gesture.Pan()
     .onBegin((e) => {
@@ -47,6 +51,12 @@ const MonthCal = ({
         x: e.changeX + offset.value.x,
         y: e.changeY + offset.value.y,
       };
+
+      if (height.value + e.changeY < 0) {
+        height.value = 0;
+        return;
+      }
+
       if (height.value + e.changeY < 180) {
         height.value += e.changeY;
       }
@@ -62,6 +72,7 @@ const MonthCal = ({
       } else if (offset.value.x < -50) {
         runOnJS(goNext)();
         left.value = windowWidth.value - 100;
+        // left.value = withSpring(0);
         left.value = withSpring(0);
       }
 
@@ -70,9 +81,11 @@ const MonthCal = ({
       };
 
       if (height.value < 90) {
-        runOnJS(changeCalType)();
+        height.value = withTiming(0, { duration: 100 });
+        // runOnJS(changeCalType)();
+        runOnJS(delayChange)();
       } else {
-        height.value = 180;
+        height.value = withSpring(180);
       }
     });
 
